@@ -17,6 +17,7 @@ interface Props {
     row: Mark_Hier;
     showBack?: boolean;        // control visibility
     onBack?: () => void;       // callback
+    level?: "STATE" | "REGION" | "ZONE" | "SECTOR" | "AREA" | "CATEGORY_SUMMARY";
 }
 
 const formatCurrency = (value: number) => {
@@ -27,7 +28,7 @@ const formatCurrency = (value: number) => {
     }).format(value || 0);
 };
 
-const HierarchyCard: React.FC<Props> = ({ row, showBack = true, onBack }) => {
+const HierarchyCard: React.FC<Props> = ({ row, showBack = true, onBack, level }) => {
 
     const redemptionPercent = row.ScannedAmount
         ? (row.RedeemedAmount / row.ScannedAmount) * 100
@@ -46,10 +47,20 @@ const HierarchyCard: React.FC<Props> = ({ row, showBack = true, onBack }) => {
             <div className="flex justify-between items-start gap-4 mb-6">
                 <div className="min-w-0">
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white truncate group-hover:text-blue-600 transition-colors">
-                        {row.State || row.Area || "Overview"}
+                        {level === "STATE" && row.State}
+                        {level === "REGION" && row.Region}
+                        {level === "ZONE" && row.Zone}
+                        {level === "SECTOR" && row.Sector}
+                        {level === "AREA" && row.Area}
+                        {(!level || level === "CATEGORY_SUMMARY") && (row.State || row.Area || "Overview")}
                     </h2>
                     <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-wider">
-                        {[row.Region, row.Zone, row.Sector].filter(Boolean).join(" • ") || "Hierarchy View"}
+                        {level === "STATE" && "State"}
+                        {level === "REGION" && row.State}
+                        {level === "ZONE" && `${row.State} • ${row.Region}`}
+                        {level === "SECTOR" && `${row.State} • ${row.Region} • ${row.Zone}`}
+                        {level === "AREA" && `${row.State} • ${row.Region} • ${row.Zone} • ${row.Sector}`}
+                        {(!level || level === "CATEGORY_SUMMARY") && ([row.Region, row.Zone, row.Sector].filter(Boolean).join(" • ") || "Hierarchy View")}
                     </p>
                 </div>
 

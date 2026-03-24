@@ -83,6 +83,8 @@ const CouponDetails: React.FC = () => {
     >("STATE");
 
     const hierarchyDisplay = [
+        financialYear && `Year: ${financialYear}`,
+        financialPeriod && `Period: ${financialPeriod}`,
         inflCategory && `Category: ${inflCategory}`,
         selectedHierarchy.State && `State: ${selectedHierarchy.State}`,
         selectedHierarchy.Region && `Region: ${selectedHierarchy.Region}`,
@@ -239,7 +241,7 @@ const CouponDetails: React.FC = () => {
 
         // Apply Category Filter if in Geographic Mode or if a category is pre-selected
         if (inflCategory) {
-            filteredData = staticData.filter(item => item.Category === inflCategory);
+            filteredData = staticData.filter(item => item.club === inflCategory);
         }
 
         // Apply Geographic Filters if any
@@ -249,6 +251,11 @@ const CouponDetails: React.FC = () => {
         if (selectedHierarchy.Sector) filteredData = filteredData.filter(item => item.Sector === selectedHierarchy.Sector);
         if (selectedHierarchy.Area) filteredData = filteredData.filter(item => item.Area === selectedHierarchy.Area);
 
+
+        if (level === "INFLUENCER") {
+            // Do not overwrite rows set by fetchAreaDetails
+            return;
+        }
 
         if (viewMode === "CATEGORY" && level === "STATE") {
             // Group by Category
@@ -781,10 +788,10 @@ const CouponDetails: React.FC = () => {
                             </select>
                         </div> */}
 
-                        <div className="flex flex-col justify-end">
+                        <div className="flex flex-col justify-end min-w-0">
                             {hierarchyDisplay && (
-                                <div className="h-12 flex items-center px-4 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 rounded-2xl text-[11px] font-bold border border-blue-100 dark:border-blue-800/30 overflow-hidden">
-                                    <span className="truncate">{hierarchyDisplay}</span>
+                                <div className="h-12 flex items-center px-4 bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 rounded-2xl text-[11px] font-bold border border-blue-100 dark:border-blue-800/30 overflow-x-auto whitespace-nowrap scrollbar-hide">
+                                    <span>{hierarchyDisplay}</span>
                                 </div>
                             )}
                         </div>
@@ -834,7 +841,10 @@ const CouponDetails: React.FC = () => {
                             onClick={() => handleDrill(row)}
                             className="cursor-pointer"
                         >
-                            <HierarchyComponent row={row} />
+                            <HierarchyComponent 
+                                row={row} 
+                                level={viewMode === "CATEGORY" && level === "STATE" ? "CATEGORY_SUMMARY" : level} 
+                            />
                         </div>
                     ))}
                 </div>
